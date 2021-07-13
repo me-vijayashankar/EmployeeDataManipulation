@@ -18,27 +18,29 @@ namespace EmployeeDataManipulation
         {
             try
             {
+                var respHeader = new Dictionary<string, string>();
+                respHeader.Add("Access-Control-Allow-Origin", "*");
                 if (request.HttpMethod == "POST")
-                {
+                {                    
                     var employee = JsonConvert.DeserializeObject<Employee>(request.Body);
                     if (employee == null) return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
                     context.Logger.Log(JsonConvert.SerializeObject(employee));
                     IEmployeeRepo repo = new EmployeeRepo(new AmazonDynamoDBClient(), context);
                     var status = await repo.CreateEmployeeAsync(employee);
                     if (status)
-                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.Created, Body = "Created Successfully" };
+                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.Created, Body = "Created Successfully",Headers= respHeader };
                     else
-                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
+                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
                 }
                 else if(request.HttpMethod == "PUT")
                 {
                     var employee = JsonConvert.DeserializeObject<Employee>(request.Body);
-                    if (employee == null) return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
+                    if (employee == null) return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
                     context.Logger.Log(JsonConvert.SerializeObject(employee));
                     IEmployeeRepo repo = new EmployeeRepo(new AmazonDynamoDBClient(), context);
                     if(await repo.UpdateEmployeeAsync(employee))
-                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.NoContent, Body = "Updted Successfully" };
-                    else return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
+                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.NoContent, Body = "Updted Successfully", Headers = respHeader };
+                    else return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
 
                 }
                 else if (request.HttpMethod == "DELETE" && request.Resource == "/employee/{id}")
@@ -49,10 +51,10 @@ namespace EmployeeDataManipulation
 
                     if (await repo.DeleteEmployeeAsync(employee))
                     {
-                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.NoContent, Body = "Deleted Successfully" };
+                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.NoContent, Body = "Deleted Successfully", Headers = respHeader };
                     }
                     context.Logger.Log(JsonConvert.SerializeObject(request));
-                    return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
+                    return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
                 }
                 else if (request.HttpMethod == "DELETE" && request.Resource == "/employee"){
                     IEmployeeRepo repo = new EmployeeRepo(new AmazonDynamoDBClient(), context);
@@ -60,12 +62,12 @@ namespace EmployeeDataManipulation
 
                     if (await repo.DeleteEmployeeAsync(employee))
                     {
-                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.NoContent, Body = "Deleted Successfully" };
+                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.NoContent, Body = "Deleted Successfully", Headers = respHeader };
                     }
                     context.Logger.Log(JsonConvert.SerializeObject(request));
-                    return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
+                    return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
                 }
-                else return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest };
+                else return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
 
             }
             catch (Exception ex)
