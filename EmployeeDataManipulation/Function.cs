@@ -28,7 +28,7 @@ namespace EmployeeDataManipulation
                     IEmployeeRepo repo = new EmployeeRepo(new AmazonDynamoDBClient(), context);
                     var status = await repo.CreateEmployeeAsync(employee);
                     if (status)
-                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.Created, Body = "Created Successfully",Headers= respHeader };
+                        return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.Created,Headers= respHeader };
                     else
                         return new APIGatewayProxyResponse { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Headers = respHeader };
                 }
